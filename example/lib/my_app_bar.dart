@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar demoAppBar(BuildContext context, String title) {
+AppBar myAppBar(BuildContext context, String title) {
   return AppBar(
     title: Text(title),
     actions: [

@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:example/demo_app_bar.dart';
+import 'package:example/my_app_bar.dart';
 import 'package:example/observed_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ class DemoSingleChildScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: demoAppBar(context, "SingleChildScrollView"),
+      appBar: myAppBar(context, "SingleChildScrollView"),
       body: SingleChildScrollView(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

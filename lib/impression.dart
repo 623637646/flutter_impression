@@ -11,6 +11,13 @@ enum ImpressionDetectorReset {
 }
 
 class DefaultImpressionDetectorConfig {
+  /// The detection interval.
+  /// Smaller detectionInterval means more accuracy and higher CPU consumption.
+  static Duration get detectionInterval =>
+      VisibilityDetectorController.instance.updateInterval;
+  static set detectionInterval(Duration value) =>
+      VisibilityDetectorController.instance.updateInterval = value;
+
   /// The default threshold of duration in the screen.
   /// The view will be impressed if it keeps being in screen after this duration.
   static Duration durationThreshold = const Duration(seconds: 1);
@@ -18,10 +25,14 @@ class DefaultImpressionDetectorConfig {
   /// The default threshold of area ratio in screen.
   /// The view will be impressed if it's area ratio keeps being bigger than this value.
   /// It should be > 0 and <= 1 `(0, 1]`.
-  static double visibleFractionThreshold = 1;
+  static double visibleFractionThreshold = 0.5;
 
   /// The default situations which will retrigger the impression event.
-  static final Set<ImpressionDetectorReset> resetWhen = {};
+  static final Set<ImpressionDetectorReset> resetWhen = {
+    ImpressionDetectorReset.leftScreen,
+    ImpressionDetectorReset.appInactive,
+    ImpressionDetectorReset.appPaused,
+  };
 }
 
 class ImpressionDetector extends StatefulWidget {
@@ -67,7 +78,8 @@ class ImpressionDetector extends StatefulWidget {
   State<ImpressionDetector> createState() => _ImpressionDetectorState();
 }
 
-class _ImpressionDetectorState extends State<ImpressionDetector> {
+class _ImpressionDetectorState extends State<ImpressionDetector>
+    with WidgetsBindingObserver {
   final _key = UniqueKey();
 
   DateTime? _keepInScreenFrom;
@@ -75,6 +87,39 @@ class _ImpressionDetectorState extends State<ImpressionDetector> {
   bool _isImpressed = false;
 
   double _visibleFraction = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.inactive:
+        if (_retriggerImpression(ImpressionDetectorReset.appInactive)) {
+          _reset();
+        }
+        break;
+      case AppLifecycleState.paused:
+        if (_retriggerImpression(ImpressionDetectorReset.appPaused)) {
+          _reset();
+        }
+        break;
+      case AppLifecycleState.resumed:
+        _detectImpressionAndRebuildChildIfNeeded();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +159,9 @@ class _ImpressionDetectorState extends State<ImpressionDetector> {
     }
     if (_visibleFraction >= _appliedVisibleFractionThreshold) {
       // It's on the screen.
+      if (_isImpressed) {
+        return;
+      }
       if (_keepInScreenFrom == null) {
         _keepInScreenFrom = DateTime.now();
         Timer(_appliedDurationThreshold,
@@ -128,9 +176,14 @@ class _ImpressionDetectorState extends State<ImpressionDetector> {
       // it's not on the screen.
       _keepInScreenFrom = null;
       if (_retriggerImpression(ImpressionDetectorReset.leftScreen)) {
-        _isImpressed = false;
+        _reset();
       }
     }
+  }
+
+  void _reset() {
+    _keepInScreenFrom = null;
+    _isImpressed = false;
   }
 
   void _triggerImpression() {
