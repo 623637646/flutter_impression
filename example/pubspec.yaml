@@ -31,6 +31,8 @@ dependencies:
     sdk: flutter
   impression:
     path: ../
+  flutter_ume: ^1.0.2
+  flutter_ume_kit_perf: ^1.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
