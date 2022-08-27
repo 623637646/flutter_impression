@@ -1,6 +1,6 @@
 name: impression
-description: A new Flutter package project.
-version: 0.0.1
+description: To detect impression events for widgets in flutter.
+version: 1.0.0
 homepage:
 
 environment:
