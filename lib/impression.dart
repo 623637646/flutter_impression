@@ -71,7 +71,7 @@ class ImpressionDetector extends StatefulWidget {
     required this.impressedCallback,
     this.builder,
     this.child,
-  }) : assert((builder == null) || (child == null),
+  }) : assert((builder == null) ^ (child == null),
             "Can't set both builder and child");
 
   @override
