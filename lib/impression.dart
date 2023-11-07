@@ -118,6 +118,8 @@ class _ImpressionDetectorState extends State<ImpressionDetector>
       case AppLifecycleState.resumed:
         _detectImpressionAndRebuildChildIfNeeded();
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
   }
 
