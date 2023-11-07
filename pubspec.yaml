@@ -1,7 +1,8 @@
 name: impression
 description: To detect impression events for widgets in flutter.
-version: 1.0.0
-homepage:
+version: 1.0.1
+homepage: https://github.com/623637646/flutter_impression
+repository: https://github.com/623637646/flutter_impression
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
