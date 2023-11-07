@@ -1,6 +1,7 @@
 library impression;
 
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -129,7 +130,7 @@ class _ImpressionDetectorState extends State<ImpressionDetector>
       key: _key,
       onVisibilityChanged: (visibilityInfo) {
         final newValue = visibilityInfo.visibleFraction;
-        if (_visibleFraction == newValue) {
+        if (_floatNear(_visibleFraction, newValue)) {
           return;
         }
         _visibleFraction = newValue;
@@ -220,4 +221,15 @@ class _ImpressionDetectorState extends State<ImpressionDetector>
     assert(!durationThreshold.isNegative);
     return durationThreshold;
   }
+}
+
+/// The tolerance used to determine whether two floating-point values are
+/// approximately equal.
+const _kDefaultTolerance = 0.01;
+
+/// Returns whether two floating-point values are approximately equal.
+bool _floatNear(double f1, double f2) {
+  final absDiff = (f1 - f2).abs();
+  return absDiff <= _kDefaultTolerance ||
+      (absDiff / max(f1.abs(), f2.abs()) <= _kDefaultTolerance);
 }
